@@ -469,6 +469,28 @@ FW_VERSIONS = {
       b'\xf1\x816U2V8051\x00\x00\xf1\x006U2V0_C2\x00\x006U2V8051\x00\x00DJS0T16KS2\016\xba\036\xa2',
     ],
   },
+  
+  CAR.VELOSTER_2020: {
+    (Ecu.fwdCamera, 0x7C4, None): [
+      b'\xf1\000JS  LKAS AT USA LHD 1.00 1.03 95740-J3000 K33',
+    ],
+    (Ecu.fwdRadar, 0x7D0, None): [
+      b'\xf1\000JS__ SCC H-CUP      1.00 1.02 95650-J3200',
+    ],
+    (Ecu.engine, 0x7e0, None): [
+      b'391282BJF6',
+    ],
+    (Ecu.esp, 0x7d1, None): [
+      b'\xf1\x00\x00\x00\x00\x00\x00\x00',
+    ],
+     (Ecu.transmission, 0x7e1, None): [
+      b'\xf1\x816U2V8051\x00\x00\xf1\x006U2V0_C2\x00\x006U2V8051\x00\x00DJS0T16NS1\xba\x02\xb8\x80',
+    ],
+    (Ecu.eps, 0x7d4, None): [
+      b'\xf1\x00JSL MDPS C 1.00 1.03 56340-J3000 8308',
+    ],
+  },  
+  
   CAR.GENESIS_G70: {
     (Ecu.fwdRadar, 0x7d0, None): [b'\xf1\x00IK__ SCC F-CUP      1.00 1.02 96400-G9100         \xf1\xa01.02', ],
     (Ecu.engine, 0x7e0, None): [b'\xf1\x81640F0051\x00\x00\x00\x00\x00\x00\x00\x00', ],
