@@ -470,7 +470,7 @@ FW_VERSIONS = {
     ],
   },
   
-  CAR.VELOSTER_2020: {
+  CAR.VELOSTER_2020_TURBO_ULTIMATE: {
     (Ecu.fwdCamera, 0x7C4, None): [
       b'\xf1\000JS  LKAS AT USA LHD 1.00 1.03 95740-J3000 K33',
     ],
