@@ -36,6 +36,7 @@ class CAR:
   SONATA_LF = "HYUNDAI SONATA 2019"
   PALISADE = "HYUNDAI PALISADE 2020"
   VELOSTER = "HYUNDAI VELOSTER 2019"
+  VELOSTER_2020_TURBO_ULTIMATE = "HYUNDAI VELOSTER 2020 TURBO ULTIMATE"
 
   # Kia
   KIA_FORTE = "KIA FORTE E 2018 & GT 2021"
@@ -723,6 +724,7 @@ DBC = {
   CAR.SONATA_LF: dbc_dict('hyundai_kia_generic', None),
   CAR.PALISADE: dbc_dict('hyundai_kia_generic', None),
   CAR.VELOSTER: dbc_dict('hyundai_kia_generic', None),
+  CAR.VELOSTER_2020_TURBO_ULTIMATE: dbc_dict('hyundai_kia_generic', None),
   CAR.KIA_CEED: dbc_dict('hyundai_kia_generic', None),
 }
 
