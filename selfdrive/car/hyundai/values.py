@@ -7,7 +7,7 @@ Ecu = car.CarParams.Ecu
 # Steer torque limits
 class CarControllerParams:
   def __init__(self, CP):
-    if CP.carFingerprint in [CAR.SONATA, CAR.PALISADE, CAR.SANTA_FE, CAR.VELOSTER, CAR.GENESIS_G70, CAR.IONIQ_EV_2020, CAR.KIA_CEED, CAR.KIA_SELTOS, CAR.ELANTRA_2021, CAR.ELANTRA_HEV_2021]:
+    if CP.carFingerprint in [CAR.SONATA, CAR.PALISADE, CAR.SANTA_FE, CAR.VELOSTER, CAR.VELOSTER_2020_TURBO_ULTIMATE, CAR.GENESIS_G70, CAR.IONIQ_EV_2020, CAR.KIA_CEED, CAR.KIA_SELTOS, CAR.ELANTRA_2021, CAR.ELANTRA_HEV_2021]:
       self.STEER_MAX = 384
     else:
       self.STEER_MAX = 255
@@ -36,6 +36,7 @@ class CAR:
   SONATA_LF = "HYUNDAI SONATA 2019"
   PALISADE = "HYUNDAI PALISADE 2020"
   VELOSTER = "HYUNDAI VELOSTER 2019"
+  VELOSTER_2020_TURBO_ULTIMATE = "HYUNDAI VELOSTER 2020 TURBO ULTIMATE"
 
   # Kia
   KIA_FORTE = "KIA FORTE E 2018 & GT 2021"
@@ -469,6 +470,17 @@ FW_VERSIONS = {
       b'\xf1\x816U2V8051\x00\x00\xf1\x006U2V0_C2\x00\x006U2V8051\x00\x00DJS0T16KS2\016\xba\036\xa2',
     ],
   },
+  
+  CAR.VELOSTER_2020_TURBO_ULTIMATE: {
+    
+    (Ecu.fwdRadar, 0x7D0, None): [b'\xf1\000JS__ SCC H-CUP      1.00 1.02 95650-J3200         ', ],
+    (Ecu.engine, 0x7e0, None): [b'391282BJF6 ', ],
+    (Ecu.esp, 0x7d1, None): [b'\xf1\000\000\000\000\000\000\000', ],
+    (Ecu.eps, 0x7d4, None): [b'\xf1\000JSL MDPS C 1.00 1.03 56340-J3000 8308', ],
+    (Ecu.fwdCamera, 0x7C4, None): [b'\xf1\000JS  LKAS AT USA LHD 1.00 1.03 95740-J3000 K33', ],
+    (Ecu.transmission, 0x7e1, None): [b'\xf1\x816U2V8051\000\000\xf1\0006U2V0_C2\000\0006U2V8051\000\000DJS0T16NS1\000\000\000\0000', ],
+  },  
+
   CAR.GENESIS_G70: {
     (Ecu.fwdRadar, 0x7d0, None): [b'\xf1\x00IK__ SCC F-CUP      1.00 1.02 96400-G9100         \xf1\xa01.02', ],
     (Ecu.engine, 0x7e0, None): [b'\xf1\x81640F0051\x00\x00\x00\x00\x00\x00\x00\x00', ],
@@ -701,6 +713,7 @@ DBC = {
   CAR.SONATA_LF: dbc_dict('hyundai_kia_generic', None),
   CAR.PALISADE: dbc_dict('hyundai_kia_generic', None),
   CAR.VELOSTER: dbc_dict('hyundai_kia_generic', None),
+  CAR.VELOSTER_2020_TURBO_ULTIMATE: dbc_dict('hyundai_kia_generic', None),
   CAR.KIA_CEED: dbc_dict('hyundai_kia_generic', None),
 }
 
