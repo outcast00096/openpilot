@@ -1,9 +1,15 @@
+Version 0.8.7 (2021-07-31)
+========================
+ * comma three support!
+ * Navigation alpha for the comma three!
+ * Volkswagen T-Cross 2021 support thanks to jyoung8607!
+
 Version 0.8.6 (2021-07-21)
 ========================
  * Revamp lateral and longitudinal planners
    * Refactor planner output API to be more readable and verbose
    * Planners now output desired trajectories for speed, acceleration, curvature, and curvature rate
-   * Use MPC for longitudinal planning when no lead car is present, this replaces a mostly hardcoded policy and makes accel and deccel smoother
+   * Use MPC for longitudinal planning when no lead car is present, makes accel and decel smoother
  * Remove "CHECK DRIVER FACE VISIBILITY" warning
  * Fixed cruise fault on some TSS2.5 Camrys and international Toyotas
  * Hyundai Elantra Hybrid 2021 support thanks to tecandrew!

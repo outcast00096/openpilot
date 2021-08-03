@@ -59,7 +59,7 @@ common/api/__init__.py
 models/supercombo.dlc
 models/dmonitoring_model_q.dlc
 
-release/build_release2.sh
+release/*
 
 selfdrive/version.py
 
@@ -354,6 +354,7 @@ selfdrive/ui/*.h
 selfdrive/ui/ui
 selfdrive/ui/text
 selfdrive/ui/spinner
+selfdrive/ui/soundd
 
 selfdrive/ui/qt/*.cc
 selfdrive/ui/qt/*.h
@@ -435,7 +436,10 @@ selfdrive/modeld/runners/run.h
 selfdrive/monitoring/dmonitoringd.py
 selfdrive/monitoring/driver_monitor.py
 
+selfdrive/assets/.gitignore
+selfdrive/assets/assets.qrc
 selfdrive/assets/*.png
+selfdrive/assets/*.svg
 selfdrive/assets/fonts/*.ttf
 selfdrive/assets/images/*
 selfdrive/assets/offroad/*
@@ -498,6 +502,7 @@ cereal/log.capnp
 cereal/services.py
 cereal/SConscript
 cereal/include/**
+cereal/logger/logger.h
 cereal/messaging/.gitignore
 cereal/messaging/__init__.py
 cereal/messaging/bridge.cc

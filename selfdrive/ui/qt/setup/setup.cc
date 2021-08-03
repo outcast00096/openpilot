@@ -94,8 +94,9 @@ QWidget * Setup::network_setup() {
   main_layout->addSpacing(25);
 
   // wifi widget
-  Networking *wifi = new Networking(this, false);
-  main_layout->addWidget(wifi, 1);
+  Networking *networking = new Networking(this, false);
+  networking->setStyleSheet("Networking {background-color: #292929; border-radius: 13px;}");
+  main_layout->addWidget(networking, 1);
 
   main_layout->addSpacing(35);
 
@@ -116,12 +117,18 @@ QWidget * Setup::network_setup() {
   blayout->addWidget(cont);
 
   // setup timer for testing internet connection
-  HttpRequest *request = new HttpRequest(this, DASHCAM_URL, false, 2500);
+  HttpRequest *request = new HttpRequest(this, false, 2500);
   QObject::connect(request, &HttpRequest::requestDone, [=](bool success) {
     cont->setEnabled(success);
-    cont->setText(success ? "Continue" : "Waiting for internet");
+    if (success) {
+      const bool cell = networking->wifi->currentNetworkType() == NetworkType::CELL;
+      cont->setText(cell ? "Continue without WiFi" : "Continue");
+    } else {
+      cont->setText("Waiting for internet");
+    }
     repaint();
   });
+  request->sendRequest(DASHCAM_URL);
   QTimer *timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, [=]() {
     if (!request->active() && cont->isVisible()) {
@@ -209,15 +216,15 @@ QWidget * Setup::software_selection() {
 
   QObject::connect(cont, &QPushButton::clicked, [=]() {
     auto w = currentWidget();
+    QTimer::singleShot(0, [=]() {
+      setCurrentWidget(downloading_widget);
+    });
     QString url = DASHCAM_URL;
     if (group->checkedButton() != dashcam) {
-      QTimer::singleShot(0, [=]() {
-        setCurrentWidget(downloading_widget);
-      });
       url = InputDialog::getText("Enter URL", this, "for Custom Software");
     }
     if (!url.isEmpty()) {
-      QTimer::singleShot(100, this, [=]() {
+      QTimer::singleShot(1000, this, [=]() {
         download(url);
       });
     } else {
@@ -270,7 +277,7 @@ QWidget * Setup::download_failed() {
   QPushButton *reboot = new QPushButton("Reboot device");
   reboot->setObjectName("navBtn");
   blayout->addWidget(reboot);
-  QObject::connect(reboot, &QPushButton::released, this, [=]() {
+  QObject::connect(reboot, &QPushButton::clicked, this, [=]() {
     Hardware::reboot();
   });
 
@@ -278,8 +285,8 @@ QWidget * Setup::download_failed() {
   restart->setObjectName("navBtn");
   restart->setProperty("primary", true);
   blayout->addWidget(restart);
-  QObject::connect(restart, &QPushButton::released, this, [=]() {
-    setCurrentIndex(0);
+  QObject::connect(restart, &QPushButton::clicked, this, [=]() {
+    setCurrentIndex(2);
   });
 
   widget->setStyleSheet(R"(
@@ -312,8 +319,11 @@ Setup::Setup(QWidget *parent) : QStackedWidget(parent) {
   QObject::connect(this, &Setup::finished, [=](bool success) {
     // hide setup on success
     qDebug() << "finished" << success;
-    setVisible(!success);
-    setCurrentWidget(failed_widget);
+    if (success) {
+      QTimer::singleShot(3000, this, &QWidget::hide);
+    } else {
+      setCurrentWidget(failed_widget);
+    }
   });
 
   // TODO: revisit pressed bg color

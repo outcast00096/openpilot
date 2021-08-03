@@ -2,14 +2,39 @@
 
 #include <QPushButton>
 
+#include "selfdrive/hardware/hw.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/qt_window.h"
-#include "selfdrive/hardware/hw.h"
+#include "selfdrive/ui/qt/widgets/scrollview.h"
 
 
 QDialogBase::QDialogBase(QWidget *parent) : QDialog(parent) {
   Q_ASSERT(parent != nullptr);
   parent->installEventFilter(this);
+
+  setWindowFlags(Qt::Popup);
+  setStyleSheet(R"(
+    * {
+      outline: none;
+      color: white;
+      font-family: Inter;
+    }
+    QDialogBase {
+      background-color: black;
+    }
+    QPushButton {
+      height: 160;
+      font-size: 55px;
+      font-weight: 400;
+      border-radius: 10px;
+      color: white;
+      background-color: #333333;
+    }
+    QPushButton:pressed {
+      background-color: #444444;
+    }
+
+  )");
 }
 
 bool QDialogBase::eventFilter(QObject *o, QEvent *e) {
@@ -17,6 +42,11 @@ bool QDialogBase::eventFilter(QObject *o, QEvent *e) {
     reject();
   }
   return QDialog::eventFilter(o, e);
+}
+
+int QDialogBase::exec() {
+  setMainWindow(this);
+  return QDialog::exec();
 }
 
 InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &subtitle, bool secret) : QDialogBase(parent) {
@@ -48,8 +78,8 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
     background-color: #444444;
   )");
   header_layout->addWidget(cancel_btn, 0, Qt::AlignRight);
-  QObject::connect(cancel_btn, &QPushButton::released, this, &InputDialog::reject);
-  QObject::connect(cancel_btn, &QPushButton::released, this, &InputDialog::cancel);
+  QObject::connect(cancel_btn, &QPushButton::clicked, this, &InputDialog::reject);
+  QObject::connect(cancel_btn, &QPushButton::clicked, this, &InputDialog::cancel);
 
   main_layout->addLayout(header_layout);
 
@@ -77,6 +107,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
   )");
 
   line = new QLineEdit();
+  line->setStyleSheet("lineedit-password-character: 8226; lineedit-password-mask-delay: 1500;");
   textbox_layout->addWidget(line, 1);
 
   if (secret) {
@@ -87,7 +118,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
       if (checked) {
         eye_btn->setIcon(QIcon(ASSET_PATH + "img_eye_closed.svg"));
         eye_btn->setIconSize(QSize(81, 54));
-        line->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+        line->setEchoMode(QLineEdit::Password);
       } else {
         eye_btn->setIcon(QIcon(ASSET_PATH + "img_eye_open.svg"));
         eye_btn->setIconSize(QSize(81, 44));
@@ -99,20 +130,18 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
   }
 
   main_layout->addWidget(textbox_widget, 0, Qt::AlignBottom);
-
   main_layout->addSpacing(25);
-  k = new Keyboard(this);
-  QObject::connect(k, &Keyboard::emitButton, this, &InputDialog::handleInput);
-  main_layout->addWidget(k, 2, Qt::AlignBottom);
 
-  setStyleSheet(R"(
-    * {
-      outline: none;
-      color: white;
-      font-family: Inter;
-      background-color: black;
-    }
-  )");
+  k = new Keyboard(this);
+  QObject::connect(k, &Keyboard::emitEnter, this, &InputDialog::handleEnter);
+  QObject::connect(k, &Keyboard::emitBackspace, this, [=]() {
+    line->backspace();
+  });
+  QObject::connect(k, &Keyboard::emitKey, this, [=](const QString &key) {
+    line->insert(key.left(1));
+  });
+
+  main_layout->addWidget(k, 2, Qt::AlignBottom);
 }
 
 QString InputDialog::getText(const QString &prompt, QWidget *parent, const QString &subtitle,
@@ -128,27 +157,16 @@ QString InputDialog::text() {
   return line->text();
 }
 
-int InputDialog::exec() {
-  setMainWindow(this);
-  return QDialog::exec();
-}
-
 void InputDialog::show() {
   setMainWindow(this);
 }
 
-void InputDialog::handleInput(const QString &s) {
-  if (!QString::compare(s,"⌫")) {
-    line->backspace();
-  } else if (!QString::compare(s,"→")) {
-    if (line->text().length() >= minLength) {
-      done(QDialog::Accepted);
-      emitText(line->text());
-    } else {
-      setMessage("Need at least "+QString::number(minLength)+" characters!", false);
-    }
+void InputDialog::handleEnter() {
+  if (line->text().length() >= minLength) {
+    done(QDialog::Accepted);
+    emitText(line->text());
   } else {
-    line->insert(s.left(1));
+    setMessage("Need at least "+QString::number(minLength)+" characters!", false);
   }
 }
 
@@ -163,9 +181,12 @@ void InputDialog::setMinLength(int length) {
   minLength = length;
 }
 
+// ConfirmationDialog
+
 ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString &confirm_text, const QString &cancel_text,
                                        QWidget *parent) : QDialogBase(parent) {
   QFrame *container = new QFrame(this);
+  container->setStyleSheet("QFrame { border-radius: 0; background-color: #ECECEC; }");
   QVBoxLayout *main_layout = new QVBoxLayout(container);
   main_layout->setContentsMargins(32, 120, 32, 32);
 
@@ -183,40 +204,18 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
   if (cancel_text.length()) {
     QPushButton* cancel_btn = new QPushButton(cancel_text);
     btn_layout->addWidget(cancel_btn);
-    QObject::connect(cancel_btn, &QPushButton::released, this, &ConfirmationDialog::reject);
+    QObject::connect(cancel_btn, &QPushButton::clicked, this, &ConfirmationDialog::reject);
   }
 
   if (confirm_text.length()) {
     QPushButton* confirm_btn = new QPushButton(confirm_text);
     btn_layout->addWidget(confirm_btn);
-    QObject::connect(confirm_btn, &QPushButton::released, this, &ConfirmationDialog::accept);
+    QObject::connect(confirm_btn, &QPushButton::clicked, this, &ConfirmationDialog::accept);
   }
 
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
   outer_layout->setContentsMargins(210, 170, 210, 170);
   outer_layout->addWidget(container);
-
-  setWindowFlags(Qt::Popup);
-  setStyleSheet(R"(
-    ConfirmationDialog {
-      background-color: black;
-    }
-    QFrame {
-      border-radius: 0;
-      background-color: #ECECEC;
-    }
-    QPushButton {
-      height: 160;
-      font-size: 55px;
-      font-weight: 400;
-      border-radius: 10px;
-      color: white;
-      background-color: #333333;
-    }
-    QPushButton:pressed {
-      background-color: #444444;
-    }
-  )");
 }
 
 bool ConfirmationDialog::alert(const QString &prompt_text, QWidget *parent) {
@@ -229,7 +228,34 @@ bool ConfirmationDialog::confirm(const QString &prompt_text, QWidget *parent) {
   return d.exec();
 }
 
-int ConfirmationDialog::exec() {
-  setMainWindow(this);
-  return QDialog::exec();
+
+// RichTextDialog
+
+RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_text,
+                               QWidget *parent) : QDialogBase(parent) {
+  QFrame *container = new QFrame(this);
+  container->setStyleSheet("QFrame { background-color: #1B1B1B; }");
+  QVBoxLayout *main_layout = new QVBoxLayout(container);
+  main_layout->setContentsMargins(32, 32, 32, 32);
+
+  QLabel *prompt = new QLabel(prompt_text, this);
+  prompt->setWordWrap(true);
+  prompt->setAlignment(Qt::AlignLeft);
+  prompt->setTextFormat(Qt::RichText);
+  prompt->setStyleSheet("font-size: 42px; font-weight: light; color: #C9C9C9; margin: 45px;");
+  main_layout->addWidget(new ScrollView(prompt, this), 1, Qt::AlignTop);
+
+  // confirm button
+  QPushButton* confirm_btn = new QPushButton(btn_text);
+  main_layout->addWidget(confirm_btn);
+  QObject::connect(confirm_btn, &QPushButton::clicked, this, &QDialog::accept);
+
+  QVBoxLayout *outer_layout = new QVBoxLayout(this);
+  outer_layout->setContentsMargins(100, 100, 100, 100);
+  outer_layout->addWidget(container);
+}
+
+bool RichTextDialog::alert(const QString &prompt_text, QWidget *parent) {
+  auto d = RichTextDialog(prompt_text, "Ok", parent);
+  return d.exec();
 }
