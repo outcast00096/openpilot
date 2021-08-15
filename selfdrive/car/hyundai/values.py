@@ -480,7 +480,7 @@ FW_VERSIONS = {
     (Ecu.fwdCamera, 0x7C4, None): [b'\xf1\000JS  LKAS AT USA LHD 1.00 1.03 95740-J3000 K33', ],
     (Ecu.transmission, 0x7e1, None): [b'\xf1\x816U2V8051\000\000\xf1\0006U2V0_C2\000\0006U2V8051\000\000DJS0T16NS1\000\000\000\0000', ],
   },  
-  
+
   CAR.GENESIS_G70: {
     (Ecu.fwdRadar, 0x7d0, None): [b'\xf1\x00IK__ SCC F-CUP      1.00 1.02 96400-G9100         \xf1\xa01.02', ],
     (Ecu.engine, 0x7e0, None): [b'\xf1\x81640F0051\x00\x00\x00\x00\x00\x00\x00\x00', ],
